@@ -10,20 +10,20 @@ phases:
     - $(aws ecr get-login --region us-east-1 --no-include-email)
     - REPOSITORY_URI=417602454469.dkr.ecr.us-east-1.amazonaws.com/nodeapp
     - TAG="$(echo $CODEBUILD_RESOLVED_SOURCE_VERSION | head -c 8)"
-    - IMAGE_URI=417602454469.dkr.ecr.us-east-1.amazonaws.com/nodeapp:latest
+    - IMAGE_URI=${REPOSITORY_URI}:${TAG}
   build:
     commands:
     - echo Build started on `date`
     - echo $IMAGE_URI
     - mvn clean package -Ddockerfile.skip
-    - docker build --tag $IMAGE_URI .
+    - docker build --tag ${IMAGE_URI} .
   post_build:
     commands:
     - printenv
     - echo Build completed on `date`
-    - echo $(docker images)
+    - echo ${docker images}
     - echo Pushing docker image
-    - docker push $IMAGE_URI
+    - docker push ${IMAGE_URI}
     - echo push completed
     - printf '[{"name":"%s","imageUri":"%s"}]' $CONTAINER_NAME $IMAGE_URI > imagedefinitions.json
 artifacts:
